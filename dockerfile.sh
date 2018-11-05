@@ -3,19 +3,25 @@
 #MPI Install
 
 if ! type "mpicc" > /dev/null; then
-  sudo apt-get groupinstall "Development Tools" -y
+  echo "**** first env"
+  sudo env
+  echo "**** second env"
+  sudo -E env
+  sudo apt-get install build-essential -y
   sudo apt-get install wget -y
   wget https://download.open-mpi.org/release/open-mpi/v3.1/openmpi-3.1.3.tar.gz
   sudo tar -xvzf openmpi-3.1.3.tar.gz
   sudo mv openmpi-3.1.3 /usr/lib/
   cd /usr/lib/openmpi-3.1.3
-  sudo ./configure --prefix=/usr/lib/openmpi-3.1.3
-  sudo make all install
+  sudo -E ./configure --prefix=/usr/lib/openmpi-3.1.3
+  sudo -E make all install
   export PATH=/usr/lib/openmpi-3.1.3/bin:$PATH
   echo "**** after install"
   type "mpicc" > /dev/null
 fi
 
+echo "**** mpi test"
+which mpicc
 # Install dependencies from Debian package manager
 # Removed mpi related packages
 sudo apt-get update -y &&
@@ -91,4 +97,4 @@ cd /opt/openmc/examples/xml/pincell
 ls
 pwd
 # /usr/lib64/openmpi-3.1.3/bin/mpiexec -np $NSLOTS /shared/home/ccuser/a.out
-mpiexec -np $NSLOTS -x OPENMC_MULTIPOLE_LIBRARY -x OPENMC_CROSS_SECTIONS openmc
+/usr/bin/mpiexec -np $NSLOTS -x OPENMC_MULTIPOLE_LIBRARY -x OPENMC_CROSS_SECTIONS openmc
