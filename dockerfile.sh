@@ -6,7 +6,7 @@ source env.sh
 if ! type "mpicc" > /dev/null; then
   sudo apt-get install build-essential wget -y
   wget https://download.open-mpi.org/release/open-mpi/v3.1/openmpi-3.1.3.tar.gz
-  tar -xvzf openmpi-3.1.3.tar.gz
+  tar -xzf openmpi-3.1.3.tar.gz
   rm openmpi-3.1.3.tar.gz
   sudo mv openmpi-3.1.3 /usr/lib/
   cd /usr/lib/
@@ -21,17 +21,7 @@ sudo apt-get upgrade -y &&
 sudo apt-get install -y cmake python-setuptools python3-pip wget git openssh-server openssh-client gfortran g++ libhdf5-serial-dev libhdf5-openmpi-dev imagemagick
 sudo apt-get autoremove
 
-# Environmental Vars
-#export FC=/usr/bin/mpif90
-#export CC=/usr/bin/mpicc
-#export CXX=/usr/bin/mpicxx
-#export PATH=/opt/openmc/bin:/opt/NJOY2016/build:$PATH
-#export LD_LIBRARY_PATH=/opt/openmc/lib:$LD_LIBRARY_PATH
-#export OPENMC_CROSS_SECTIONS=/root/nndc_hdf5/cross_sections.xml
-#export OPENMC_MULTIPOLE_LIBRARY=/root/WMP_Library
-#export OPENMC_ENDF_DATA=/root/endf-b-vii.1
 cd ~/
-source env.sh
 echo "***** env"
 env
 
@@ -67,9 +57,9 @@ cd ..
 
 # Download cross sections (NNDC and WMP) and ENDF data needed by test suite
 sudo wget -O nndc_hdf5.tar.xz https://anl.box.com/shared/static/a0eflty17atnpd0pp7460exagr3nuhm7.xz
-sudo tar -xJvf nndc_hdf5.tar.xz
+sudo tar -xJf nndc_hdf5.tar.xz
 sudo git clone --branch=master git://github.com/smharper/windowed_multipole_library.git wmp_lib
-sudo tar xzvf wmp_lib/multipole_lib.tar.gz
+sudo tar -xzf wmp_lib/multipole_lib.tar.gz
 cd /opt/openmc/examples/xml/pincell
 
 
