@@ -1,38 +1,26 @@
-#!/bin/bash
+!/bin/bash
 
-#MPI Install
+# Clean up from last install
+sudo rm -rf /opt/NJOY2016 /opt/openmc
 cd /shared/home/ccuser
-source env.sh
-if ! type "mpicc" > /dev/null; then
-  sudo apt-get install build-essential wget -y
-  wget https://download.open-mpi.org/release/open-mpi/v3.1/openmpi-3.1.3.tar.gz
-  tar -xzf openmpi-3.1.3.tar.gz
-  rm openmpi-3.1.3.tar.gz
-  sudo mv openmpi-3.1.3 /usr/lib/
-  cd /usr/lib/
-  cd /usr/lib/openmpi-3.1.3
-  ./configure --prefix=/usr/lib/openmpi-3.1.3
-  sudo -E make all install
-fi
+
+
+export PATH=/shared/home/ccuser/bin:/shared/home/ccuser/.local/bin:/sched/sge/sge-2011.11/bin/linux-x64:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/opt/cycle/jetpack/bin:$PATH
 
 # Removed mpi related packages
 sudo apt-get update -y &&
 sudo apt-get upgrade -y &&
-sudo apt-get install -y cmake python-setuptools python3-pip wget git openssh-server openssh-client gfortran g++ libhdf5-serial-dev libhdf5-openmpi-dev imagemagick
+sudo apt-get install -y cmake sudo openmpi-bin libopenmpi-dev python-setuptools python3-pip wget git openssh-server openssh-client gfortran g++ libhdf5-serial-dev libhdf5-openmpi-dev imagemagick
 sudo apt-get autoremove
 
-cd ~/
-echo "***** env"
-env
-
 # Update system-provided pip
-echo "**** pip test"
-pip --version
-pip3 --version
 sudo pip3 install --upgrade pip
 sudo pip install six NumPy SciPy pandas h5py Matplotlib uncertainties lxml
 
-sudo rm -rf /opt/NJOY2016 /opt/openmc
+export FC=/usr/bin/mpif90
+export CC=/usr/bin/mpicc
+export CXX=/usr/bin/mpicxx
+
 # Clone and install NJOY2016
 sudo mkdir /opt/NJOY2016
 sudo git clone https://github.com/njoy/NJOY2016 /opt/NJOY2016
@@ -47,7 +35,7 @@ sudo -E make install
 sudo mkdir /opt/openmc
 sudo git clone https://github.com/mit-crpg/openmc.git /opt/openmc
 cd /opt/openmc
-sudo git checkout master
+sudo git checkout tags/0.10.0
 sudo mkdir -p build
 cd build
 sudo -E cmake -Dopenmp=on -Doptimize=on -DHDF5_PREFER_PARALLEL=on ..
@@ -56,12 +44,18 @@ sudo -E make install
 cd ..
 
 # Download cross sections (NNDC and WMP) and ENDF data needed by test suite
-sudo wget -O nndc_hdf5.tar.xz https://anl.box.com/shared/static/a0eflty17atnpd0pp7460exagr3nuhm7.xz
+sudo wget -O nndc_hdf5.tar.xz https://anl.box.com/shared/static/a6sw2cep34wlz6b9i9jwiotaqoayxcxt.xz
 sudo tar -xJf nndc_hdf5.tar.xz
 sudo git clone --branch=master git://github.com/smharper/windowed_multipole_library.git wmp_lib
 sudo tar -xzf wmp_lib/multipole_lib.tar.gz
 cd /opt/openmc/examples/xml/pincell
+sudo chmod -R 777 /opt/openmc/
 
+export PATH=/opt/openmc/bin:/opt/NJOY2016/build:$PATH
+export LD_LIBRARY_PATH=/opt/openmc/lib:$LD_LIBRARY_PATH
+export OPENMC_CROSS_SECTIONS=/opt/openmc/nndc_hdf5/cross_sections.xml
+export OPENMC_MULTIPOLE_LIBRARY=/opt/openmc/multipole_lib
+export OPENMC_ENDF_DATA=/opt/openmc/nndc_hdf5/cross_sections.xml
 
 #$ -cwd
 #$ -j y
@@ -69,7 +63,4 @@ cd /opt/openmc/examples/xml/pincell
 #
 # mpiexec -np 1 --bind-to socket -x OPENMC_MULTIPOLE_LIBRARY -x OPENMC_CROSS_SECTIONS --allow-run-as-root openmc --threads 128
 
-ls
-pwd
-# /usr/lib64/openmpi-3.1.3/bin/mpiexec -np $NSLOTS /shared/home/ccuser/a.out
-/usr/bin/mpiexec -np $NSLOTS -x OPENMC_MULTIPOLE_LIBRARY -x OPENMC_CROSS_SECTIONS openmc
+mpiexec -display-map -map-by node -np $NSLOTS -x OPENMC_MULTIPOLE_LIBRARY -x OPENMC_CROSS_SECTIONS openmc --threads 1
