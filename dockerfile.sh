@@ -64,5 +64,5 @@ export OPENMC_ENDF_DATA=/opt/openmc/nndc_hdf5/cross_sections.xml
 #
 # mpiexec -np 1 --bind-to socket -x OPENMC_MULTIPOLE_LIBRARY -x OPENMC_CROSS_SECTIONS --allow-run-as-root openmc --threads 128
 
-mpiexec -display-map -map-by node -np $NSLOTS -x OPENMC_MULTIPOLE_LIBRARY -x OPENMC_CROSS_SECTIONS openmc --threads 1
+# mpiexec -display-map -map-by node -np $NSLOTS -x OPENMC_MULTIPOLE_LIBRARY -x OPENMC_CROSS_SECTIONS openmc --threads 1
                                                                                                                          
