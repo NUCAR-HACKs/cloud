@@ -50,6 +50,7 @@ sudo git clone --branch=master git://github.com/smharper/windowed_multipole_libr
 sudo tar -xzf wmp_lib/multipole_lib.tar.gz
 cd /opt/openmc/examples/xml/pincell
 sudo chmod -R 777 /opt/openmc/
+sudo chmod -R 777 /tmp
 
 export PATH=/opt/openmc/bin:/opt/NJOY2016/build:$PATH
 export LD_LIBRARY_PATH=/opt/openmc/lib:$LD_LIBRARY_PATH
@@ -64,3 +65,4 @@ export OPENMC_ENDF_DATA=/opt/openmc/nndc_hdf5/cross_sections.xml
 # mpiexec -np 1 --bind-to socket -x OPENMC_MULTIPOLE_LIBRARY -x OPENMC_CROSS_SECTIONS --allow-run-as-root openmc --threads 128
 
 mpiexec -display-map -map-by node -np $NSLOTS -x OPENMC_MULTIPOLE_LIBRARY -x OPENMC_CROSS_SECTIONS openmc --threads 1
+                                                                                                                         
